@@ -1,3 +1,10 @@
+#
+# Compiler Term Project 1
+#
+# Team 1 :  Leo PAOL & Christophe MEI
+#           50181573 & 50181587
+#
+
 from enum import Enum
 
 class Token(Enum):

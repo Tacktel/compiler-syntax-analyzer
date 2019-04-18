@@ -1,7 +1,9 @@
+#
 # Compiler Term Project 1
-# Team 1
-# Christophe Mei 50181587
-# Leo Paol 50181573
+#
+# Team 1 :  Leo PAOL & Christophe MEI
+#           50181573 & 50181587
+#
 
 from token import Token
 from token import Tokenvalue
