@@ -266,7 +266,7 @@ class Tokenvalue():
     Tokentab = {
         Token.T_INT : t_int,
         Token.T_CHAR : t_char,
-        Token.T_INTVAL : t_int,
+        Token.T_INTVAL : t_intval,
         Token.T_CHARVAL : t_charval,
         Token.T_ID : t_id,
         Token.T_IF : t_if,
