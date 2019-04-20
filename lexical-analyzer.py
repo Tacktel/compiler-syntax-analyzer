@@ -10,6 +10,7 @@ from token import Token
 possible_tokens = []
 r = Regex()
 charval_state = False
+current_line = 1
 
 def check_args():
     if len(sys.argv) != 2:
@@ -32,27 +33,23 @@ def check_tokens_for_substring(substr):
     global possible_tokens
     global r
     global charval_state
-    #print("substr[%s]" % substr)
     if (not charval_state and substr == "\""):
-        #print("A")
         charval_state = True
         possible_tokens.append(Token.T_CHARVAL)
         return True
     elif (charval_state and substr[-1] == "\""):
-        #print("C")
         charval_state = False
-        if not r.isvalid(substr, Token.T_CHARVAL):
+        if not r.is_valid(substr, Token.T_CHARVAL):
             possible_tokens = []
             return False
         possible_tokens.append(Token.T_CHARVAL)
         return True
     elif (charval_state):
-        #print("B")
         possible_tokens.append(Token.T_CHARVAL)
         return True
     else:
         for token in Token:      
-            if (not charval_state and r.isvalid(substr, token) == True):
+            if (not charval_state and r.is_valid(substr, token) == True):
                 if (token not in possible_tokens):
                     possible_tokens.append(token)
                 return True
@@ -60,11 +57,16 @@ def check_tokens_for_substring(substr):
 
 def generate_token_for_substring(substr):
     global possible_tokens
+    global current_line
     if possible_tokens[-1].name == "T_WSPACE":
         print("%s" % possible_tokens[-1].name[2:])
+        current_line += substr.count('\n')
     else:
         print("%s:%s" % (possible_tokens[-1].name[2:], substr))
     possible_tokens = []
+
+def exit_error(content):
+    sys.exit("Error detected at line %d: [%s]" % (current_line, content))
 
 def lexical_analysis(file_content):
     global possible_tokens
@@ -75,20 +77,18 @@ def lexical_analysis(file_content):
         while j <= file_length:
             exists = check_tokens_for_substring(file_content[i:j])
             if not exists:
-                #print("not exists")
                 if not possible_tokens:
-                    print("une erreur ouesh")
+                    exit_error(file_content[i:j])
                     if i + 1 < j:
                         i = j - 1
                 else:
-                    #print("else")
                     generate_token_for_substring(file_content[i:j - 1])
                     i = j - 2
                 break
             elif j == file_length:
-                #print("elif")
-                if exists:
-                    #print("exists")
+                if charval_state:
+                    exit_error(file_content[i:j])
+                elif exists:
                     generate_token_for_substring(file_content[i:j])
                 return
             j += 1
