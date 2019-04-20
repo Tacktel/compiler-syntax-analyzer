@@ -10,5 +10,5 @@ from token import Token
 import sys
 
 r = Regex()
-valid = r.isvalid(sys.argv[1], Token.T_INTVAL)
+valid = r.isvalid("return", Token.T_RETURN)
 print(valid)

@@ -203,10 +203,9 @@ class Tokenvalue():
         "key" : ['='],
         "value" : [
             [1],
-            [2],
             [0],
         ],
-        "final" : [2]
+        "final" : [1]
     }
 
     t_term = {
