@@ -41,7 +41,7 @@ class Regex:
         t = self.__get_tokentab(token)
         current_state = 0
 
-        for i, char in enumerate(string):
+        for char in string:
             for index, tokenkey in enumerate(t["key"]):
                 if self.__is_valid_char(char, tokenkey) and t["value"][current_state][index] != 0:
                     current_state = t["value"][current_state][index]
