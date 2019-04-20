@@ -12,11 +12,11 @@ class Token(Enum):
     T_CHAR = 2
     T_INTVAL = 3
     T_CHARVAL = 4
-    T_ID = 5
+    T_RETURN = 5
     T_IF = 6
     T_ELSE = 7
     T_WHILE = 8
-    T_RETURN = 9
+    T_ID = 9
     T_OP = 10
     T_ASSIGN = 11
     T_COMP = 12
@@ -105,7 +105,7 @@ class Tokenvalue():
             [0,0,0,4],
             [0,0,0,0],
         ],
-        "final" : []
+        "final" : [2, 4]
     }
 
     t_else = {

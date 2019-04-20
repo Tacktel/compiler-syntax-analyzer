@@ -60,12 +60,12 @@ def check_tokens_for_substring(substr):
     for token in Token:
         if (r.isvalid(substr, token) == True):
             possible_tokens.append(token)
-            print(token.name)
+            #print(token.name)
             return True
     return False
 
 def generate_token_for_substring(substr):
-    print("generate token %s for [%s]" % (possible_tokens[0], substr))
+    print("generate token %s for [%s]" % (possible_tokens[-1], substr))
 
 def lexical_analysis(file_content):
     global possible_tokens
