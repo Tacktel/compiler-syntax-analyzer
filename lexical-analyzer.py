@@ -7,35 +7,9 @@ import sys
 from regexparser import Regex
 from token import Token
 
-"""class Token:
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-        #self.next = None
-"""
-
-""" class LinkedList:
-    def __init__(self):
-        self.head_val = None
-
-    def print_list(self):
-        node = self.head_val
-        while node is not None:
-            print("[%s - %s]" % (node.name, node.value))
-            node = node.next
-
-    def append_to_list(self, name, value):
-        new_token = Token(name, value)
-        if self.head_val is None:
-            self.head_val = new_token
-            return
-        current_token = self.head_val
-        while (current_token.next):
-            current_token = current_token.next
-        current_token.nextval = new_token """
-
 possible_tokens = []
 r = Regex()
+charval_state = False
 
 def check_args():
     if len(sys.argv) != 2:
@@ -55,36 +29,68 @@ def get_file_content():
     return file_content
 
 def check_tokens_for_substring(substr):
-    #print("substr -> [%s]" % substr)
     global possible_tokens
-    for token in Token:
-        if (r.isvalid(substr, token) == True):
-            possible_tokens.append(token)
-            #print(token.name)
-            return True
+    global r
+    global charval_state
+    #print("substr[%s]" % substr)
+    if (not charval_state and substr == "\""):
+        #print("A")
+        charval_state = True
+        possible_tokens.append(Token.T_CHARVAL)
+        return True
+    elif (charval_state and substr[-1] == "\""):
+        #print("C")
+        charval_state = False
+        if not r.isvalid(substr, Token.T_CHARVAL):
+            possible_tokens = []
+            return False
+        possible_tokens.append(Token.T_CHARVAL)
+        return True
+    elif (charval_state):
+        #print("B")
+        possible_tokens.append(Token.T_CHARVAL)
+        return True
+    else:
+        for token in Token:      
+            if (not charval_state and r.isvalid(substr, token) == True):
+                if (token not in possible_tokens):
+                    possible_tokens.append(token)
+                return True
     return False
 
 def generate_token_for_substring(substr):
-    print("generate token %s for [%s]" % (possible_tokens[-1], substr))
+    global possible_tokens
+    if possible_tokens[-1].name == "T_WSPACE":
+        print("%s" % possible_tokens[-1].name[2:])
+    else:
+        print("%s:%s" % (possible_tokens[-1].name[2:], substr))
+    possible_tokens = []
 
 def lexical_analysis(file_content):
     global possible_tokens
     i = 0
     file_length = len(file_content)
     while i < file_length:
-        #print("i[%d]" % i)
         j = i + 1
         while j <= file_length:
-            #print("j[%d]" % j)
             exists = check_tokens_for_substring(file_content[i:j])
             if not exists:
-                if not possible_tokens: # remplacer par une vérification du tableau "if tab is empty"
+                #print("not exists")
+                if not possible_tokens:
                     print("une erreur ouesh")
+                    if i + 1 < j:
+                        i = j - 1
                 else:
+                    #print("else")
                     generate_token_for_substring(file_content[i:j - 1])
-                    possible_tokens = []
                     i = j - 2
                 break
+            elif j == file_length:
+                #print("elif")
+                if exists:
+                    #print("exists")
+                    generate_token_for_substring(file_content[i:j])
+                return
             j += 1
         i += 1
 
