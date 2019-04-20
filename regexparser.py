@@ -27,39 +27,26 @@ class Regex:
                'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
         return char in tab
 
-    def isvalid(self, string, token):
-        i = 0
+    def __is_valid_char(self, char, tokenkey):
+        if tokenkey == "digit":
+            return self.__is_digit(char)
+        elif tokenkey == "nzdigit":
+            return self.__is_nzdigit(char)
+        elif tokenkey == "letter":
+            return self.__is_letter(char)
+        else:
+            return char == tokenkey
+
+    def is_valid(self, string, token):
+        t = self.__get_tokentab(token)
         current_state = 0
 
-        t = self.__get_tokentab(token)
-
-        while i < len(string):
-            # for each char of string
+        for i, char in enumerate(string):
             for index, tokenkey in enumerate(t["key"]):
-                #for each key char
-                if tokenkey == "digit":
-                    if self.__is_digit(string[i]) and t["value"][current_state][index] != 0:
-                        current_state = t["value"][current_state][index]
-                        break
-                elif tokenkey == "nzdigit":
-                    if self.__is_nzdigit(string[i]) and t["value"][current_state][index] != 0:
-                        current_state = t["value"][current_state][index]
-                        break
-                elif tokenkey == "letter":
-                    if self.__is_letter(string[i]) and t["value"][current_state][index] != 0:
-                        current_state = t["value"][current_state][index]
-                        break
-                else:
-                    if string[i] == tokenkey and t["value"][current_state][index] != 0:
-                        current_state = t["value"][current_state][index]
-                        break
-                
+                if self.__is_valid_char(char, tokenkey) and t["value"][current_state][index] != 0:
+                    current_state = t["value"][current_state][index]
+                    break
             else:
                 if index + 1 >= len(t["key"]):
                     return False
-            i += 1
-
-        if current_state == 0:
-            return False
-        
         return current_state in t["final"]
