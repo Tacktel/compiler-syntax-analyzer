@@ -8,6 +8,7 @@ from regexparser import Regex
 from token import Token
 
 possible_tokens = []
+tokens_list = []
 r = Regex()
 charval_state = False
 current_line = 1
@@ -59,10 +60,10 @@ def generate_token_for_substring(substr):
     global possible_tokens
     global current_line
     if possible_tokens[-1].name == "T_WSPACE":
-        print("%s" % possible_tokens[-1].name[2:])
+        tokens_list.append("%s" % possible_tokens[-1].name[2:])
         current_line += substr.count('\n')
     else:
-        print("%s:%s" % (possible_tokens[-1].name[2:], substr))
+        tokens_list.append("%s:%s" % (possible_tokens[-1].name[2:], substr))
     possible_tokens = []
 
 def exit_error(content):
@@ -94,12 +95,24 @@ def lexical_analysis(file_content):
             j += 1
         i += 1
 
+def write_to_file():
+    file_name = "%s.out" % sys.argv[1][:-2]
+    try:
+        file = open(file_name, "w+")
+    except IOError:
+        sys.exit("Error while opening file %s" % file_name)
+    if file.mode == "w+":
+        for token in tokens_list:
+            file.write("%s\n" % token)
+    else:
+        sys.exit("Error while writing to file %s" % file_name)
+
 def main():
     if check_args() == False:
         sys.exit("USAGE: python3 %s <file_to_analyze>" % sys.argv[0])
     file_content = get_file_content()
     lexical_analysis(file_content)
+    write_to_file()
 
 if __name__ == '__main__':
-    # execute only if run as the entry point into the program
     main()
