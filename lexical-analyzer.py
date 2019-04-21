@@ -13,11 +13,17 @@ r = Regex()
 charval_state = False
 current_line = 1
 
+#
+# Check if two arguments were provided to the program
+#
 def check_args():
     if len(sys.argv) != 2:
         return False
     return True
 
+#
+# Open the file and return it's content as a string
+#
 def get_file_content():
     try:
         file = open(sys.argv[1], "r")
@@ -30,6 +36,10 @@ def get_file_content():
 
     return file_content
 
+#
+# Fill the "possible_tokens" list with the token names validated
+# by the regex parser for the substring received as param
+#
 def check_tokens_for_substring(substr):
     global possible_tokens
     global r
@@ -56,6 +66,10 @@ def check_tokens_for_substring(substr):
                 return True
     return False
 
+#
+# Append the token name and its value for a specific substring to the "tokens_list" var
+# using the "possible_tokens" list
+#
 def generate_token_for_substring(substr):
     global possible_tokens
     global current_line
@@ -66,9 +80,15 @@ def generate_token_for_substring(substr):
         tokens_list.append("%s:%s" % (possible_tokens[-1].name[2:], substr))
     possible_tokens = []
 
+#
+# Exit the program and print a string
+#
 def exit_error(content):
     sys.exit("Error detected at line %d: [%s]" % (current_line, content))
 
+#
+# main logic, read the file content with a window contained by i and j
+#
 def lexical_analysis(file_content):
     global possible_tokens
     i = 0
@@ -95,6 +115,9 @@ def lexical_analysis(file_content):
             j += 1
         i += 1
 
+#
+# open/create a .out file to write the tokens in it
+#
 def write_to_file():
     file_name = "%s.out" % sys.argv[1][:-2]
     try:
