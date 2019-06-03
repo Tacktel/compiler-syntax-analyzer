@@ -1,1 +1,4 @@
-int func(int a) { return 0; }
+int func(int a) {
+    a = a * 1;
+    return 0; 
+}
