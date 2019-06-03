@@ -218,43 +218,102 @@ def next_step(state):
     nxt = slr[state][get_col_of(next_sym)]
     return nxt
 
+def next_step_with_prev_sym(prev_sym):
+    index = 0
+    for key in slr[0]:
+        if key == prev_sym:
+            return slr[current_state][index]
+        index += 1
+
 def parse_next(nxt):
     if nxt == "":
         return None
-    elif nxt[0] == 'S':
+    elif type(nxt) is str and nxt[0] == 'S':
         return ['S', int(nxt[1:])]
-    elif nxt[0] == 'R':
+    elif type(nxt) is str and  nxt[0] == 'R':
         return ['R', int(nxt[2:-1])]
     else:
         return ['G', nxt]
 
 def do_shift(state):
-    shift_cursor += 1
-    stack.append(state)
-    next_sym = tokens[shift_cursor]
-    current_state = stack[-1]
+    global shift_cursor
+    global current_state
+
+    shift_cursor += 1           # shift
+    stack.append(state)         # add state to stack
+    current_state = stack[-1]   # get top of stack
+
+def find_right_statement(cfg_state):
+    statement_index = 0
+    for state in cfg[cfg_state]:
+        if statement_index >= 1:
+            i = len(state) - 1
+            j = shift_cursor - 1
+            while i >= 0 and j >= 0:
+                if state[i] != tokens[j]:
+                    break
+                i -= 1
+                j -= 1
+            if i == -1:
+                return statement_index
+        statement_index += 1
+
+    return 0
+
+def reduce_statement(cfg_state, index):
+    global shift_cursor
+
+    state = cfg[cfg_state][index]
+    i = shift_cursor - len(state)
+    j = len(state)
+    count = 0
+    while count < j:
+        tokens.pop(i)
+        stack.pop()
+        count += 1
+    tokens.insert(i, cfg[cfg_state][0])
+    shift_cursor = i + 1
 
 def do_reduce(cfg_state):
-    pass
+    global current_state
+    right_statement = find_right_statement(cfg_state)   # find the good one
+    if right_statement == 0:
+        error = "Syntax invalid1: "
+        sys.exit(error)
+    reduce_statement(cfg_state, right_statement)
+    current_state = stack[-1]
 
 def do_goto(state):
+    global current_state
+
     stack.append(state)
     current_state = stack[-1]
 
 def check_syntax():
-    while tokens != ["S"]:
+    global next_sym
+
+    reduced = False
+    while tokens != ["S","$"]:
+        
         next_sym = tokens[shift_cursor]
-        nxt = next_step(current_state)
-        decision = parse_next(nxt)
-        if decision == None:
-            error = "Syntax invalid: "
-            sys.exit(error)
-        elif decision[0] == 'S':
-            do_shift(decision[1])
-        elif decision[0] == 'R':
-            do_reduce(decision[1])
+        if reduced == False:
+            nxt = next_step(current_state) # get content from the table
+            decision = parse_next(nxt)     # parse into tuple [R/S, value]
+            if decision == None:
+                error = "Syntax invalid2: "
+                sys.exit(error)
+            elif decision[0] == 'S':
+                do_shift(decision[1])
+
+            elif decision[0] == 'R':
+                do_reduce(decision[1])
+                reduced = True
         else:
+            nxt = next_step_with_prev_sym(tokens[shift_cursor - 1]) # get content from the table
+            decision = parse_next(nxt)
             do_goto(decision[1])
+            reduced = False
+        print(tokens)
 
 def check_args():
     if len(sys.argv) != 2:
@@ -278,14 +337,20 @@ def fill_tokens():
                     tokens.append("multdiv")
             except ValueError:
                 continue
+        tokens.append("$")
     else:
         sys.exit("Error while reading file %s" % sys.argv[1])
 
 def main():
+    global tokens
+
     if check_args() == False:
         sys.exit("USAGE: python3 %s <file_to_analyze>" % sys.argv[0])
     fill_tokens()
+    tokens = ["vtype","id","lparen","rparen","lbrace","id","assign","num","semi","return","num", "semi","rbrace","$"]
     print(tokens)
+    check_syntax()
+    print("Syntax is valid!")
 
 if __name__ == '__main__':
     main()
