@@ -300,7 +300,7 @@ def check_syntax():
             nxt = next_step(current_state) # get content from the table
             decision = parse_next(nxt)     # parse into tuple [R/S, value]
             if decision == None:
-                error = "Syntax invalid2: "
+                error = "Syntax invalid"
                 sys.exit(error)
             elif decision[0] == 'S':
                 do_shift(decision[1])
@@ -309,8 +309,11 @@ def check_syntax():
                 do_reduce(decision[1])
                 reduced = True
         else:
-            nxt = next_step_with_prev_sym(tokens[shift_cursor - 1]) # get content from the table
+            nxt = next_step_with_prev_sym(tokens[shift_cursor - 1]) # get previous token and find next step from goto section
             decision = parse_next(nxt)
+            if decision == None or decision[0] != 'G':
+                error = "Syntax invalid"
+                sys.exit(error)
             do_goto(decision[1])
             reduced = False
         print(tokens)
@@ -347,7 +350,7 @@ def main():
     if check_args() == False:
         sys.exit("USAGE: python3 %s <file_to_analyze>" % sys.argv[0])
     fill_tokens()
-    tokens = ["vtype","id","lparen","rparen","lbrace","id","assign","num","semi","return","num", "semi","rbrace","$"]
+    #tokens = ["vtype","id","lparen","rparen","lbrace","id","assign","num","semi","return","num", "semi","rbrace","$"]
     print(tokens)
     check_syntax()
     print("Syntax is valid!")
