@@ -31,7 +31,7 @@ slr = [
 	["", "vtype", "num", "literal", "id", "if", "else", "while", "return", "addsub", "multdiv", "assign", "comp", "semi", "comma", "lparen", "rparen", "lbrace", "rbrace", "$", "CODE", "VDECL", "FDECL", "ARG", "MOREARGS", "BLOCK", "STMT", "RHS", "EXPR", "TERM", "FACTOR", "COND", "RETURN"], 
 	[1, "S6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 86, 3, 4, "", "", "", "", "", "", "", "", "", ""], 
 	[2, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "R(1)", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-	[3, "S6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "R(1)", 2, 3, 4, "", "", "", "", "", "", "", "", "", ""], 
+	[3, "S6", "", "", "", "", "", "", "R(7)", "", "", "", "", "", "", "", "", "", "", "R(1)", 2, 3, 4, "", "", "", "", "", "", "", "", "", ""], 
 	[4, "S6", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "R(1)", 5, 3, 4, "", "", "", "", "", "", "", "", "", ""], 
 	[5, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "R(1)", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
 	[6, "", "", "", "S7", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
@@ -63,7 +63,7 @@ slr = [
 	[32, "", "S78", "", "S85", "", "", "", "", "", "", "", "", "", "", "S75", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 33, "", ""], 
 	[33, "", "", "", "", "", "", "", "", "", "", "", "", "S34", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
 	[34, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "R(15)", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
-	[35, "S6 or R(6)", "", "", "S79", "S37", "", "S59", "R(6)", "", "", "", "", "", "", "", "", "", "R(6)", "R(6)", "", "", "", "", "", 36, 35, "", "", "", "", "", ""], 
+	[35, "S6", "", "", "S79", "S37", "", "S59", "R(6)", "", "", "", "", "", "", "", "", "", "R(6)", "R(6)", "", "", "", "", "", 36, 35, "", "", "", "", "", ""], 
 	[36, "R(6)", "", "", "", "", "", "", "R(6)", "", "", "", "", "", "", "", "", "", "R(6)", "R(6)", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
 	[37, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "S38", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
 	[38, "", "S78", "", "S85", "", "", "", "", "", "", "", "", "", "", "S75", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 56, 39, ""], 
@@ -244,6 +244,7 @@ def do_shift(state):
     current_state = stack[-1]   # get top of stack
 
 def find_right_statement(cfg_state):
+    print(cfg[cfg_state])
     statement_index = 0
     for state in cfg[cfg_state]:
         if statement_index >= 1:
@@ -300,7 +301,8 @@ def check_syntax():
             nxt = next_step(current_state) # get content from the table
             decision = parse_next(nxt)     # parse into tuple [R/S, value]
             if decision == None:
-                error = "Syntax invalid"
+                print(current_state)
+                error = "Syntax invalid2"
                 sys.exit(error)
             elif decision[0] == 'S':
                 do_shift(decision[1])
@@ -309,13 +311,16 @@ def check_syntax():
                 do_reduce(decision[1])
                 reduced = True
         else:
+            print(current_state)
             nxt = next_step_with_prev_sym(tokens[shift_cursor - 1]) # get previous token and find next step from goto section
             decision = parse_next(nxt)
+            print(decision)
             if decision == None or decision[0] != 'G':
-                error = "Syntax invalid"
+                error = "Syntax invalid3"
                 sys.exit(error)
             do_goto(decision[1])
             reduced = False
+        print(stack)
         print(tokens)
 
 def check_args():
@@ -351,6 +356,7 @@ def main():
         sys.exit("USAGE: python3 %s <file_to_analyze>" % sys.argv[0])
     fill_tokens()
     #tokens = ["vtype","id","lparen","rparen","lbrace","id","assign","num","semi","return","num", "semi","rbrace","$"]
+    #tokens = ["vtype","id","semi","$"]
     print(tokens)
     check_syntax()
     print("Syntax is valid!")
